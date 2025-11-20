@@ -1,0 +1,31 @@
+const express = require("express");
+const app = express();
+
+app.use(express.json());
+
+let products = [];
+let nextId = 1;
+
+app.post("/api/products", (req, res) => {
+    const { name, price } = req.body;
+    if (!name || !price) return res.status(400).json({ error: "Name and price required" });
+    const product = { id: nextId++, name, price };
+    products.push(product);
+    res.status(201).json({ message: "Product created", product });
+});
+
+app.get("/api/products", (req, res) => {
+    res.json({ products });
+});
+
+app.put("/api/products/:id", (req, res) => {
+    const id = parseInt(req.params.id);
+    const product = products.find(p => p.id === id);
+    if (!product) return res.status(404).json({ error: "Product not found" });
+    const { name, price } = req.body;
+    if (name) product.name = name;
+    if (price) product.price = price;
+    res.json({ message: "Product updated", product });
+});
+
+app.listen(3000, () => console.log("Server running on http://localhost:3000"));
